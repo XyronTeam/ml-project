@@ -1,0 +1,155 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #f4f7fb;
+  color: #1e293b;
+}
+
+.app-container {
+  min-height: 100vh;
+  padding: 40px 24px;
+}
+
+.hero {
+  text-align: center;
+  max-width: 850px;
+  margin: 0 auto 40px;
+}
+
+.hero h1 {
+  font-size: 2.3rem;
+  margin-bottom: 12px;
+  color: #0f172a;
+}
+
+.hero p {
+  font-size: 1rem;
+  color: #475569;
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.disclaimer {
+  display: inline-block;
+  font-size: 0.9rem;
+  color: #64748b;
+  background: #e2e8f0;
+  padding: 8px 14px;
+  border-radius: 999px;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+.card h2 {
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  color: #0f172a;
+}
+
+.prediction-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.prediction-form label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.95rem;
+  color: #334155;
+  gap: 8px;
+}
+
+.prediction-form input,
+.prediction-form select {
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.prediction-form input:focus,
+.prediction-form select:focus {
+  border-color: #6366f1;
+}
+
+.prediction-form button {
+  margin-top: 10px;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #4f46e5;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.prediction-form button:hover {
+  background: #4338ca;
+}
+
+.result-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.result-box {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.result-box p {
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.factors ul {
+  margin-top: 10px;
+  padding-left: 20px;
+}
+
+.factors li {
+  margin-bottom: 8px;
+  color: #475569;
+}
+
+@media (max-width: 900px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+  .prediction-form h3 {
+  margin-top: 8px;
+  margin-bottom: 4px;
+  font-size: 1.05rem;
+  color: #0f172a;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+}
