@@ -1,4 +1,4 @@
-# Student Mental Health Analysis - Data Science & Machine Learning 🧠
+# Student Mental Health Analysis - Data Science & Machine Learning 
 
 **Multi-Dataset Analysis of Student Mental Health using Exploratory Data Analysis, Statistical Testing, and Predictive Modeling**
 
