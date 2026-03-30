@@ -22,7 +22,7 @@ We conduct parallel exploratory analyses on each dataset, identify statistically
 
 **Why Multiple Datasets?**
 - Single dataset may be biased toward one domain
-- Combining diverse sources provides **holistic view** of student mental health
+- Combining diverse sources provides **general view** of student mental health
 - Common factors across datasets indicate **true underlying patterns**
 - Increases model robustness and generalizability
 - Validates findings across independent data sources
@@ -84,22 +84,9 @@ ml-project2/
 │  ─────────────────────────────────────────────────
 │  • Align and merge datasets on common features
 │  • Train predictive model on combined data
-│  • Validate across all datasets
-│  • Evaluate generalization
 │  
-│  Output: Final ML model
-└──────────────┬────────────────────────────────────┘
-               │
-               ↓
-┌─────────────────────────────────────────────────┐
-│  STAGE 4: DEPLOYMENT & APPLICATION
-│  ─────────────────────────────────────────────────
-│  • Build web interface
-│  • Create API endpoints
-│  • Deploy predictive model
-│  
-│  Output: Interactive prediction system
-└─────────────────────────────────────────────────┘
+│  Output: Final ML model or Using the 2 other models from data A and C Seperatly. 
+└──────────────────────────────────────────────────┘
 ```
 
 ---
@@ -126,20 +113,10 @@ ml-project2/
   - Model evaluation (Accuracy, Precision, Recall, AUC-ROC)
   - Feature importance analysis
 
+
 - **Risk Profiling**
   - Student segmentation (Low/Moderate/High risk)
   - Critical factor combinations
-  - Actionable insights
-
-### Cross-Dataset Analysis
-- Feature comparison across datasets
-- Common important factors identification
-- Consensus feature selection
-
-### Unified Model
-- Merged dataset training
-- Performance validation
-- Generalization assessment
 
 ---
 
@@ -148,37 +125,11 @@ ml-project2/
 | Dataset | Link | Domain Coverage |
 |---------|--------|-----------------|
 | Dataset 1 | [Student Mental Health Dataset](https://github.com/user-attachments/files/26166744/student_depression_dataset.csv) | Academic and lifestyle
-| Dataset 2 | [To be added] | Habits & Academic Performance
-| Dataset 3 | [To be added] | Lifestyle
+| Dataset 2 | ⚠️SIZE TOO HEAVY⚠️‼️[College Student Habits and Performance](https://www.kaggle.com/datasets/sharmajicoder/college-students-habits-and-performance) | Habits & Academic Performance
+| Dataset 3 | [Student life style](https://github.com/user-attachments/files/26359125/student_lifestyle_100k.csv) | Lifestyle
 
 ---
 
-## 🔑 Analysis Approach
-
-**Stage 1: Individual Dataset Analysis**
-Each dataset shows comprehensive analysis following the same methodology:
-1. Data profiling and quality assessment
-2. Exploratory data analysis (univariate, bivariate, multivariate)
-3. Statistical significance testing
-4. Feature engineering and preprocessing
-5. Machine learning model development
-6. Feature importance identification
-
-**Stage 2: Cross-Dataset Synthesis**
-- Aggregate findings across all 3 datasets
-- Identify common significant factors
-- Extract consensus features
-
-**Stage 3: final Modeling**
-- Merge datasets on common feature set
-- Train single integrated model
-- Validate performance across original datasets
-- Assess generalization capability
-
-**Expected Outcome:**
-A robust predictive model capturing student mental health patterns across academic, lifestyle, and psychological domains.
-
----
 
 ## 💻 Installation & Setup
 
@@ -258,25 +209,6 @@ Place all 3 datasets in `data/` folder with descriptive names by source/domain (
 - Web interface for predictions
 - API for model inference
 - User-friendly reporting
-
----
-
-## 📖 How to Use This Repository
-
-### For Data Exploration
-1. Navigate to `src/`
-2. Open individual analysis notebooks
-3. Review findings, visualizations, and insights
-
-### For Understanding the Process
-1. Start with **Stage 1:** Individual dataset analyses
-2. Review **Stage 2:** Feature comparison methodology
-3. Study **Stage 3:** Unified model approach
-
-### For Predictions
-1. Once deployed, use web interface
-2. Enter student characteristics
-3. Receive risk assessment and supporting factors
 
 ---
 
