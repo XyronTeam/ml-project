@@ -1,122 +1,89 @@
-function PredictionForm() {
+import { useMemo, useState } from "react";
+import { modelSchemas } from "../../data/modelSchemas";
+function PredictionForm({ onPredict, isLoading }) {
+  const unifiedFields = useMemo(() => {
+    const seen = new Map();
+
+    Object.values(modelSchemas).forEach((model) => {
+      model.fields.forEach((field) => {
+        const normalizedName =
+          field.name === "financial_stress"
+            ? "Financial Stress"
+            : field.name === "Sleep_Duration"
+            ? "Sleep Duration"
+            : field.name;
+
+        if (!seen.has(normalizedName)) {
+          seen.set(normalizedName, {
+            ...field,
+            name: normalizedName,
+            label: field.label || normalizedName,
+          });
+        }
+      });
+    });
+
+    return Array.from(seen.values());
+  }, []);
+
+  const initialState = unifiedFields.reduce((acc, field) => {
+    acc[field.name] = "";
+    return acc;
+  }, {});
+
+  const [formData, setFormData] = useState(initialState);
+
+  const handleChange = (name, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onPredict(formData);
+  };
+
   return (
     <div className="card">
       <h2>Student Assessment Form</h2>
+      <p className="section-text">
+        Fill in the following information to estimate depression risk.
+      </p>
 
-      <form className="prediction-form">
-        <h3>General Information</h3>
+      <form className="prediction-form" onSubmit={handleSubmit}>
+        {unifiedFields.map((field) => (
+          <label key={field.name}>
+            {field.label}
 
-        <label>
-          Age
-          <input type="number" placeholder="Enter age" />
-        </label>
+            {field.type === "select" ? (
+              <select
+                value={formData[field.name] || ""}
+                onChange={(e) => handleChange(field.name, e.target.value)}
+              >
+                <option value="">Select {field.label}</option>
+                {field.options.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type={field.type}
+                step={field.step || undefined}
+                placeholder={`Enter ${field.label}`}
+                value={formData[field.name] || ""}
+                onChange={(e) => handleChange(field.name, e.target.value)}
+              />
+            )}
+          </label>
+        ))}
 
-        <label>
-          Gender
-          <select>
-            <option value="">Select gender</option>
-            <option>Male</option>
-            <option>Female</option>
-            <option>Prefer not to say</option>
-          </select>
-        </label>
-
-        <label>
-          Academic Year
-          <select>
-            <option value="">Select academic year</option>
-            <option>First Year</option>
-            <option>Second Year</option>
-            <option>Third Year</option>
-            <option>Fourth Year</option>
-            <option>Graduate</option>
-          </select>
-        </label>
-
-        <label>
-          Major / Department
-          <input type="text" placeholder="Enter major or department" />
-        </label>
-
-        <label>
-          Marital Status
-          <select>
-            <option value="">Select marital status</option>
-            <option>Single</option>
-            <option>Married</option>
-            <option>Other</option>
-          </select>
-        </label>
-
-        <label>
-          City / Area
-          <input type="text" placeholder="Enter city or area" />
-        </label>
-
-        <h3>Model Input Indicators</h3>
-
-        <label>
-          Family Income
-          <input type="number" placeholder="Enter family income" />
-        </label>
-
-        <label>
-          Parental Education Level
-          <select>
-            <option value="">Select education level</option>
-            <option>High School</option>
-            <option>Diploma</option>
-            <option>Bachelor</option>
-            <option>Master</option>
-            <option>PhD</option>
-          </select>
-        </label>
-
-        <label>
-          Hostel Student
-          <select>
-            <option value="">Select option</option>
-            <option>Yes</option>
-            <option>No</option>
-          </select>
-        </label>
-
-        <label>
-          Physical Activity
-          <input type="number" placeholder="Hours per week" />
-        </label>
-
-        <label>
-          Attendance
-          <input type="number" placeholder="Attendance percentage" />
-        </label>
-
-        <label>
-          Study Hours
-          <input type="number" placeholder="Hours per day" />
-        </label>
-
-        <label>
-          Class Participation
-          <input type="number" placeholder="Rate or score" />
-        </label>
-
-        <label>
-          Part-Time Hours
-          <input type="number" placeholder="Hours per week" />
-        </label>
-
-        <label>
-          Junk Food Frequency
-          <input type="number" placeholder="Times per week" />
-        </label>
-
-        <label>
-          Phone Unlocks Per Day
-          <input type="number" placeholder="Number of unlocks" />
-        </label>
-
-        <button type="button">Predict Risk</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Analyzing..." : "Predict Risk"}
+        </button>
       </form>
     </div>
   );

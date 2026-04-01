@@ -15,22 +15,22 @@ body {
   padding: 40px 24px;
 }
 
-.hero {
+.hero-section {
   text-align: center;
-  max-width: 850px;
+  max-width: 900px;
   margin: 0 auto 40px;
 }
 
-.hero h1 {
-  font-size: 2.3rem;
+.hero-section h1 {
+  font-size: 2.4rem;
   margin-bottom: 12px;
   color: #0f172a;
 }
 
-.hero p {
+.hero-section p {
   font-size: 1rem;
   color: #475569;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   line-height: 1.6;
 }
 
@@ -43,7 +43,7 @@ body {
   border-radius: 999px;
 }
 
-.dashboard {
+.main-layout {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 24px;
@@ -59,9 +59,16 @@ body {
 }
 
 .card h2 {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   font-size: 1.3rem;
   color: #0f172a;
+}
+
+.section-text {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-bottom: 18px;
+  line-height: 1.5;
 }
 
 .prediction-form {
@@ -73,9 +80,9 @@ body {
 .prediction-form label {
   display: flex;
   flex-direction: column;
+  gap: 8px;
   font-size: 0.95rem;
   color: #334155;
-  gap: 8px;
 }
 
 .prediction-form input,
@@ -89,7 +96,7 @@ body {
 
 .prediction-form input:focus,
 .prediction-form select:focus {
-  border-color: #6366f1;
+  border-color: #2563eb;
 }
 
 .prediction-form button {
@@ -97,7 +104,7 @@ body {
   padding: 14px;
   border: none;
   border-radius: 12px;
-  background: #4f46e5;
+  background: #2563eb;
   color: white;
   font-size: 1rem;
   cursor: pointer;
@@ -105,13 +112,12 @@ body {
 }
 
 .prediction-form button:hover {
-  background: #4338ca;
+  background: #1d4ed8;
 }
 
-.result-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+.prediction-form button:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
 }
 
 .result-box {
@@ -123,7 +129,11 @@ body {
 
 .result-box p {
   margin-bottom: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
+}
+
+.empty-state {
+  color: #64748b;
 }
 
 .factors ul {
@@ -136,20 +146,18 @@ body {
   color: #475569;
 }
 
-@media (max-width: 900px) {
-  .dashboard {
+.result-note {
+  margin-top: 16px;
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 992px) {
+  .main-layout {
     grid-template-columns: 1fr;
   }
 
-  .hero h1 {
-    font-size: 1.8rem;
+  .hero-section h1 {
+    font-size: 1.9rem;
   }
-  .prediction-form h3 {
-  margin-top: 8px;
-  margin-bottom: 4px;
-  font-size: 1.05rem;
-  color: #0f172a;
-  border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 8px;
-}
 }
