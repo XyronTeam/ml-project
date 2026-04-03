@@ -1,66 +1,129 @@
 import os
 import joblib
 import pandas as pd
-import numpy as np
 
 from schemas import MODEL_A_FEATURES, MODEL_B_FEATURES, MODEL_C_FEATURES
 
+# ---------------------------------------------------
+# Paths
+# ---------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.join(BASE_DIR, "saved_models")
 
 # ---------------------------------------------------
-# Load models once when server starts
+# Global model artifacts
 # ---------------------------------------------------
 model_a = None
 model_b = None
 model_c = None
 
-scaler_a = None
-scaler_b = None
-scaler_c = None
 
-encoder_a = None
+# ---------------------------------------------------
+# Required frontend fields
+# These are the clean names that frontend should send
+# ---------------------------------------------------
+REQUIRED_FRONTEND_FIELDS = [
+    "academic_pressure",
+    "cgpa",
+    "study_satisfaction",
+    "work_study_hours",
+    "motivation",
+    "concentration",
+    "self_discipline",
+    "financial_stress",
+    "age",
+    "sleep_duration",
+    "social_media_hours",
+    "gender",
+    "physical_activity",
+]
 
+
+# ---------------------------------------------------
+# Load helper
+# ---------------------------------------------------
 def safe_load(filename):
     path = os.path.join(MODELS_DIR, filename)
     if os.path.exists(path):
         return joblib.load(path)
     return None
 
+
+# ---------------------------------------------------
+# Load models once
+# ---------------------------------------------------
 def load_artifacts():
     global model_a, model_b, model_c
-    global scaler_a, scaler_b, scaler_c
-    global encoder_a
 
     model_a = safe_load("model_a.pkl")
     model_b = safe_load("model_b.pkl")
     model_c = safe_load("model_c.pkl")
 
-    scaler_a = safe_load("scaler_a.pkl")
-    scaler_b = safe_load("scaler_b.pkl")
-    scaler_c = safe_load("scaler_c.pkl")
+    print("model_a type:", type(model_a), "value:", model_a)
+    print("model_b type:", type(model_b), "value:", model_b)
+    print("model_c type:", type(model_c), "value:", model_c)
 
-    encoder_a = safe_load("encoder_a.pkl")
+    print("Has predict A:", hasattr(model_a, "predict"))
+    print("Has predict B:", hasattr(model_b, "predict"))
+    print("Has predict C:", hasattr(model_c, "predict"))
+
+    if hasattr(model_a, "feature_names_in_"):
+        print("Model A expects:", list(model_a.feature_names_in_))
+    if hasattr(model_b, "feature_names_in_"):
+        print("Model B expects:", list(model_b.feature_names_in_))
+    if hasattr(model_c, "feature_names_in_"):
+        print("Model C expects:", list(model_c.feature_names_in_))
+
+    if model_a is None:
+        raise FileNotFoundError("model_a.pkl not found in saved_models")
+    if model_b is None:
+        raise FileNotFoundError("model_b.pkl not found in saved_models")
+    if model_c is None:
+        raise FileNotFoundError("model_c.pkl not found in saved_models")
+
+# ---------------------------------------------------
+# Validate frontend payload
+# ---------------------------------------------------
+def validate_input(user_data: dict):
+    missing = [
+        field for field in REQUIRED_FRONTEND_FIELDS
+        if field not in user_data or user_data[field] in [None, ""]
+    ]
+
+    if missing:
+        raise ValueError(f"Missing required fields: {missing}")
 
 
 # ---------------------------------------------------
-# Map frontend unified fields to each model's expected names
+# Normalize frontend field names to model-specific names
 # ---------------------------------------------------
 def normalize_input(user_data: dict) -> dict:
-    normalized = dict(user_data)
+    gender_value = str(user_data.get("gender", "")).strip().lower()
 
-    # shared aliases
-    if "Financial Stress" in user_data and "financial_stress" not in normalized:
-        normalized["financial_stress"] = user_data["Financial Stress"]
+    gender_female = 1 if gender_value == "female" else 0
+    gender_male = 1 if gender_value == "male" else 0
 
-    if "financial_stress" in user_data and "Financial Stress" not in normalized:
-        normalized["Financial Stress"] = user_data["financial_stress"]
+    normalized = {
+        # Model A
+        "Academic Pressure": user_data.get("academic_pressure"),
+        "CGPA": user_data.get("cgpa"),
+        "Study Satisfaction": user_data.get("study_satisfaction"),
+        "Work/Study Hours": user_data.get("work_study_hours"),
 
-    if "Sleep Duration" in user_data and "Sleep_Duration" not in normalized:
-        normalized["Sleep_Duration"] = user_data["Sleep Duration"]
+        # Model B
+        "motivation": user_data.get("motivation"),
+        "concentration": user_data.get("concentration"),
+        "self_discipline": user_data.get("self_discipline"),
+        "financial_stress": user_data.get("financial_stress"),
 
-    if "Sleep_Duration" in user_data and "Sleep Duration" not in normalized:
-        normalized["Sleep Duration"] = user_data["Sleep_Duration"]
+        # Model C
+        "Age": user_data.get("age"),
+        "Sleep_Duration": user_data.get("sleep_duration"),
+        "Social_Media_Hours": user_data.get("social_media_hours"),
+        "Gender_Female": gender_female,
+        "Gender_Male": gender_male,
+        "Physical_Activity": user_data.get("physical_activity"),
+    }
 
     return normalized
 
@@ -74,65 +137,98 @@ def build_dataframe(user_data: dict, features: list[str]) -> pd.DataFrame:
 
 
 # ---------------------------------------------------
-# Preprocess per model
-# IMPORTANT:
-# Replace these placeholder steps with your real training preprocessing
+# Preprocessing for Model A
 # ---------------------------------------------------
-def preprocess_model_a(df: pd.DataFrame) -> pd.DataFrame | np.ndarray:
-    # TODO: match notebook A exactly
-    # Example: categorical encoding + scaling if needed
-    if encoder_a is not None:
-        # only if your encoder was fitted on the same exact columns
-        df = encoder_a.transform(df)
+def preprocess_model_a(df: pd.DataFrame):
+    numeric_columns = [
+        "Academic Pressure",
+        "CGPA",
+        "Study Satisfaction",
+        "Work/Study Hours",
+    ]
 
-    if scaler_a is not None:
-        df = scaler_a.transform(df)
+    for col in numeric_columns:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    return df
-
-def preprocess_model_b(df: pd.DataFrame) -> pd.DataFrame | np.ndarray:
-    # TODO: match notebook B exactly
-    if scaler_b is not None:
-        df = scaler_b.transform(df)
-    return df
-
-def preprocess_model_c(df: pd.DataFrame) -> pd.DataFrame | np.ndarray:
-    # TODO: match notebook C exactly
-    if scaler_c is not None:
-        df = scaler_c.transform(df)
     return df
 
 
 # ---------------------------------------------------
-# Predict helpers
+# Preprocessing for Model B
 # ---------------------------------------------------
-def predict_single(model, processed_input, fallback_name: str):
+def preprocess_model_b(df: pd.DataFrame):
+    numeric_columns = [
+        "motivation",
+        "concentration",
+        "self_discipline",
+        "financial_stress",
+    ]
+
+    for col in numeric_columns:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    return df
+
+
+# ---------------------------------------------------
+# Preprocessing for Model C
+# ---------------------------------------------------
+def preprocess_model_c(df: pd.DataFrame):
+    numeric_columns = [
+        "Age",
+        "Sleep_Duration",
+        "Social_Media_Hours",
+        "Gender_Female",
+        "Gender_Male",
+        "Physical_Activity",
+    ]
+
+    for col in numeric_columns:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    return df
+
+
+# ---------------------------------------------------
+# Predict helper
+# ---------------------------------------------------
+def predict_single(model, processed_input, model_name: str):
     if model is None:
-        return {
-            "name": fallback_name,
-            "prediction": 0,
-            "probability": 0.5,
-        }
+        raise ValueError(f"{model_name} is not loaded.")
 
-    pred = model.predict(processed_input)[0]
+    if not hasattr(model, "predict"):
+        raise TypeError(
+            f"{model_name} is not a valid model. "
+            f"Loaded type: {type(model)} | value: {model}"
+        )
+
+    prediction = model.predict(processed_input)[0]
 
     if hasattr(model, "predict_proba"):
-        prob = float(model.predict_proba(processed_input)[0][1])
+        probability = float(model.predict_proba(processed_input)[0][1])
     else:
-        prob = 0.5
+        probability = 0.5
 
     return {
-        "name": fallback_name,
-        "prediction": int(pred) if str(pred).isdigit() else pred,
-        "probability": prob,
+        "name": model_name,
+        "prediction": int(prediction) if str(prediction).isdigit() else prediction,
+        "probability": round(probability, 4),
     }
 
 
 # ---------------------------------------------------
-# Combine all model predictions into one final response
+# Combine all model outputs into one final result
 # ---------------------------------------------------
 def combine_results(result_a, result_b, result_c):
-    probs = [result_a["probability"], result_b["probability"], result_c["probability"]]
+    probs = [
+        result_a["probability"],
+        result_b["probability"],
+        result_c["probability"],
+    ]
+
     avg_prob = sum(probs) / len(probs)
 
     if avg_prob >= 0.7:
@@ -144,30 +240,34 @@ def combine_results(result_a, result_b, result_c):
 
     return {
         "risk": risk,
-        "confidence": f"{avg_prob * 100:.1f}%",
+        "confidence": round(avg_prob, 4),
+        "confidence_percent": f"{avg_prob * 100:.1f}%",
         "factors": [
-            "Stress Level",
             "Academic Pressure",
-            "Financial Stress",
+            "financial_stress",
+            "Sleep_Duration",
         ],
         "note": "This result is an educational estimate and not a medical diagnosis.",
-        "details": {
-            "model_a_probability": round(result_a["probability"], 4),
-            "model_b_probability": round(result_b["probability"], 4),
-            "model_c_probability": round(result_c["probability"], 4),
-        },
     }
 
 
 # ---------------------------------------------------
-# Main prediction function
+# Main function called by app.py
 # ---------------------------------------------------
 def predict_all_models(user_data: dict):
+    validate_input(user_data)
+
     normalized = normalize_input(user_data)
 
     df_a = build_dataframe(normalized, MODEL_A_FEATURES)
     df_b = build_dataframe(normalized, MODEL_B_FEATURES)
     df_c = build_dataframe(normalized, MODEL_C_FEATURES)
+
+    print("\n--- Incoming request ---")
+    print("Normalized input:", normalized)
+    print("DF A:\n", df_a)
+    print("DF B:\n", df_b)
+    print("DF C:\n", df_c)
 
     processed_a = preprocess_model_a(df_a)
     processed_b = preprocess_model_b(df_b)
@@ -178,4 +278,12 @@ def predict_all_models(user_data: dict):
     result_c = predict_single(model_c, processed_c, "Model C")
 
     final_result = combine_results(result_a, result_b, result_c)
-    return final_result
+
+    return {
+        "final_result": final_result,
+        "individual_results": {
+            "model_a": result_a,
+            "model_b": result_b,
+            "model_c": result_c,
+        }
+    }

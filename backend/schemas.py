@@ -1,15 +1,8 @@
 MODEL_A_FEATURES = [
-    "Age",
     "Academic Pressure",
+    "Work/Study Hours",
     "CGPA",
     "Study Satisfaction",
-    "Work/Study Hours",
-    "Financial Stress",
-    "Sleep Duration",
-    "Dietary Habits",
-    "Have you ever had suicidal thoughts ?",
-    "Family History of Mental Illness",
-    "Degree",
 ]
 
 MODEL_B_FEATURES = [
@@ -20,11 +13,10 @@ MODEL_B_FEATURES = [
 ]
 
 MODEL_C_FEATURES = [
-    "Stress_Level",
     "Age",
-    "CGPA",
+    "Gender_Female",
+    "Gender_Male",
     "Sleep_Duration",
     "Social_Media_Hours",
-    "Study_Hours",
     "Physical_Activity",
 ]

@@ -8,6 +8,11 @@ CORS(app)
 
 load_artifacts()
 
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"message": "Backend is running successfully"}), 200
+
+
 @app.route("/predict-all", methods=["POST"])
 def predict_all():
     try:
@@ -17,10 +22,13 @@ def predict_all():
             return jsonify({"error": "No input data provided"}), 400
 
         result = predict_all_models(user_data)
-        return jsonify(result)
+        return jsonify(result), 200
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 
 if __name__ == "__main__":

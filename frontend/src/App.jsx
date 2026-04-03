@@ -23,7 +23,6 @@ function App() {
 
       const data = await response.json();
 
-      // Handle backend errors
       if (!response.ok) {
         throw new Error(data.error || "Prediction failed");
       }
@@ -32,12 +31,14 @@ function App() {
     } catch (error) {
       console.error("Prediction error:", error);
 
-      // Show error in UI instead of crashing
       setResult({
-        risk: "Error",
-        confidence: "-",
-        factors: [],
-        note: error.message || "Something went wrong",
+        final_result: {
+          risk: "Error",
+          confidence_percent: "-",
+          factors: [],
+          note: error.message || "Something went wrong",
+        },
+        individual_results: {},
       });
     } finally {
       setIsLoading(false);

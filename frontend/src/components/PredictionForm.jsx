@@ -1,23 +1,16 @@
 import { useMemo, useState } from "react";
 import { modelSchemas } from "../../data/modelSchemas";
+
 function PredictionForm({ onPredict, isLoading }) {
   const unifiedFields = useMemo(() => {
     const seen = new Map();
 
     Object.values(modelSchemas).forEach((model) => {
       model.fields.forEach((field) => {
-        const normalizedName =
-          field.name === "financial_stress"
-            ? "Financial Stress"
-            : field.name === "Sleep_Duration"
-            ? "Sleep Duration"
-            : field.name;
-
-        if (!seen.has(normalizedName)) {
-          seen.set(normalizedName, {
+        if (!seen.has(field.name)) {
+          seen.set(field.name, {
             ...field,
-            name: normalizedName,
-            label: field.label || normalizedName,
+            label: field.label || field.name,
           });
         }
       });
@@ -36,13 +29,32 @@ function PredictionForm({ onPredict, isLoading }) {
   const handleChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: fieldNeedsNumber(name) && value !== "" ? Number(value) : value,
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onPredict(formData);
+  };
+
+  const fieldNeedsNumber = (name) => {
+    const numberFields = [
+      "academic_pressure",
+      "cgpa",
+      "study_satisfaction",
+      "work_study_hours",
+      "motivation",
+      "concentration",
+      "self_discipline",
+      "financial_stress",
+      "age",
+      "sleep_duration",
+      "social_media_hours",
+      "physical_activity",
+    ];
+
+    return numberFields.includes(name);
   };
 
   return (
