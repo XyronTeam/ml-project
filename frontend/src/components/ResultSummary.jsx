@@ -1,10 +1,40 @@
-function ResultSummary({ result }) {
+import { useLocation, useNavigate } from "react-router-dom";
+
+function ResultSummary() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const result = location.state?.result;
+
+  const formatPredictionLabel = (prediction) => {
+    if (prediction === 1) return "At Risk";
+    if (prediction === 0) return "Lower Risk";
+    return "Unavailable";
+  };
+
+  const formatProbability = (probability) => {
+    if (probability === undefined || probability === null || probability === "-") {
+      return "Unavailable";
+    }
+
+    const numericValue = Number(probability);
+
+    if (Number.isNaN(numericValue)) {
+      return "Unavailable";
+    }
+
+    return `${(numericValue * 100).toFixed(1)}%`;
+  };
+
   if (!result) {
     return (
       <div className="card result-summary-card">
         <h2>Prediction Result</h2>
         <div className="result-box empty-state">
-          <p>Your prediction result will appear here after you submit the form.</p>
+          <p>No prediction result found.</p>
+          <button className="back-button" onClick={() => navigate("/")}>
+            Back to Form
+          </button>
         </div>
       </div>
     );
@@ -13,55 +43,64 @@ function ResultSummary({ result }) {
   const finalResult = result.final_result || {};
   const individualResults = result.individual_results || {};
 
+  const modelCards = [
+    {
+      title: "Education Indicators",
+      data: individualResults.model_a,
+    },
+    {
+      title: "Behavior Indicators",
+      data: individualResults.model_b,
+    },
+    {
+      title: "Lifestyle Indicators",
+      data: individualResults.model_c,
+    },
+  ];
+
   return (
     <div className="card result-summary-card">
       <h2>Prediction Result</h2>
 
       <div className="result-box">
         <p>
-          <strong>Risk Level:</strong> {finalResult.risk}
-        </p>
-        <p>
-          <strong>Confidence:</strong> {finalResult.confidence_percent}
+          <strong>Overall Risk Level:</strong>{" "}
+          {finalResult.risk || "Unavailable"}
         </p>
 
-        {finalResult.factors?.length > 0 && (
-          <div className="factors">
-            <strong>Main Contributing Factors:</strong>
-            <ul>
-              {finalResult.factors.map((factor, index) => (
-                <li key={index}>{factor}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <p>
+          <strong>Combined Risk Score:</strong>{" "}
+          {finalResult.confidence_percent || "Unavailable"}
+        </p>
 
         {finalResult.note && <p className="result-note">{finalResult.note}</p>}
+      </div>
 
-        <hr />
+      <div className="individual-models">
+        <h3>Prediction by Category</h3>
 
-        <div className="individual-models">
-          <h3>Individual Model Results</h3>
+        <div className="model-results-grid">
+          {modelCards.map((model, index) => (
+            <div className="model-card" key={index}>
+              <h4>{model.title}</h4>
 
-          <p>
-            <strong>Model A:</strong> Prediction ={" "}
-            {individualResults.model_a?.prediction}, Probability ={" "}
-            {individualResults.model_a?.probability}
-          </p>
+              <p>
+                <strong>Result:</strong>{" "}
+                {formatPredictionLabel(model.data?.prediction)}
+              </p>
 
-          <p>
-            <strong>Model B:</strong> Prediction ={" "}
-            {individualResults.model_b?.prediction}, Probability ={" "}
-            {individualResults.model_b?.probability}
-          </p>
-
-          <p>
-            <strong>Model C:</strong> Prediction ={" "}
-            {individualResults.model_c?.prediction}, Probability ={" "}
-            {individualResults.model_c?.probability}
-          </p>
+              <p>
+                <strong>Risk Score:</strong>{" "}
+                {formatProbability(model.data?.probability)}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
+
+      <button className="back-button" onClick={() => navigate("/")}>
+        Back to Form
+      </button>
     </div>
   );
 }
