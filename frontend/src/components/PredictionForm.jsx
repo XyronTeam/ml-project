@@ -19,16 +19,7 @@ function PredictionForm({ onPredict, isLoading }) {
     return Array.from(seen.values());
   }, []);
 
-  const initialState = useMemo(() => {
-    return unifiedFields.reduce((acc, field) => {
-      acc[field.name] = "";
-      return acc;
-    }, {});
-  }, [unifiedFields]);
-
-  const [formData, setFormData] = useState(initialState);
-
-  const likertFields = [
+  const sliderFields = [
     "academic_pressure",
     "study_satisfaction",
     "motivation",
@@ -38,89 +29,86 @@ function PredictionForm({ onPredict, isLoading }) {
   ];
 
   const numericFieldRules = {
-    academic_pressure: { min: 1, max: 5 },
-    work_study_hours: { min: 0, max: 24 },
-    cgpa: { min: 0, max: 4, step: 0.01 },
-    study_satisfaction: { min: 1, max: 5 },
-    motivation: { min: 1, max: 5 },
-    concentration: { min: 1, max: 5 },
-    self_discipline: { min: 1, max: 5 },
-    financial_stress: { min: 1, max: 5 },
-    age: { min: 15, max: 100 },
-    sleep_duration: { min: 0, max: 24, step: 0.1 },
-    social_media_hours: { min: 0, max: 24, step: 0.1 },
-    physical_activity: { min: 0, max: 24, step: 0.1 },
+    academic_pressure: { min: 1, max: 5, step: 1 },
+    work_study_hours: { min: 0, max: 12, step: 0.5 },
+    cgpa: { min: 0, max: 10, step: 0.01 },
+    study_satisfaction: { min: 0, max: 5, step: 1 },
+    motivation: { min: 1, max: 10, step: 1 },
+    concentration: { min: 1, max: 10, step: 1 },
+    self_discipline: { min: 1, max: 10, step: 1 },
+    financial_stress: { min: 1, max: 10, step: 1 },
+    age: { min: 18, max: 24, step: 1 },
+    sleep_duration: { min: 3, max: 12, step: 0.5 },
+    social_media_hours: { min: 0, max: 10, step: 0.5 },
+    physical_activity: { min: 0, max: 149, step: 1 },
   };
 
-  const likertLabelsMap = {
-    academic_pressure: [
-      { value: 1, label: "Very Low" },
-      { value: 2, label: "Low" },
-      { value: 3, label: "Moderate" },
-      { value: 4, label: "High" },
-      { value: 5, label: "Very High" },
-    ],
-    financial_stress: [
-      { value: 1, label: "None" },
-      { value: 2, label: "Low" },
-      { value: 3, label: "Moderate" },
-      { value: 4, label: "High" },
-      { value: 5, label: "Severe" },
-    ],
-    concentration: [
-      { value: 1, label: "Very Poor" },
-      { value: 2, label: "Poor" },
-      { value: 3, label: "Average" },
-      { value: 4, label: "Good" },
-      { value: 5, label: "Excellent" },
-    ],
-    self_discipline: [
-      { value: 1, label: "Very Weak" },
-      { value: 2, label: "Weak" },
-      { value: 3, label: "Moderate" },
-      { value: 4, label: "Strong" },
-      { value: 5, label: "Very Strong" },
-    ],
-    study_satisfaction: [
-      { value: 1, label: "Very Unsatisfied" },
-      { value: 2, label: "Unsatisfied" },
-      { value: 3, label: "Neutral" },
-      { value: 4, label: "Satisfied" },
-      { value: 5, label: "Very Satisfied" },
-    ],
-    motivation: [
-      { value: 1, label: "Very Low" },
-      { value: 2, label: "Low" },
-      { value: 3, label: "Moderate" },
-      { value: 4, label: "High" },
-      { value: 5, label: "Very High" },
-    ],
-  };
+  const initialState = useMemo(() => {
+    return unifiedFields.reduce((acc, field) => {
+      if (sliderFields.includes(field.name)) {
+        acc[field.name] = numericFieldRules[field.name]?.min ?? 0;
+      } else {
+        acc[field.name] = "";
+      }
+      return acc;
+    }, {});
+  }, [unifiedFields]);
+
+  const [formData, setFormData] = useState(initialState);
 
   const helperText = {
-    academic_pressure: "Select the level that best describes your academic pressure.",
-    study_satisfaction: "Select the level that best describes your study satisfaction.",
-    motivation: "Select the level that best describes your motivation.",
-    concentration: "Select the level that best describes your concentration.",
-    self_discipline: "Select the level that best describes your self-discipline.",
-    financial_stress: "Select the level that best describes your financial stress.",
-    age: "Enter age between 15 and 100.",
-    sleep_duration: "Enter average daily sleep hours between 0 and 24.",
-    social_media_hours: "Enter average daily social media hours between 0 and 24.",
-    physical_activity: "Enter average daily physical activity hours between 0 and 24.",
-    work_study_hours: "Enter average daily work/study hours between 0 and 24.",
-    cgpa: "Enter CGPA between 0 and 4.",
+    academic_pressure: "Choose a value from 1 to 5.",
+    study_satisfaction: "Choose a value from 0 to 5.",
+    motivation: "Choose a value from 1 to 10.",
+    concentration: "Choose a value from 1 to 10.",
+    self_discipline: "Choose a value from 1 to 10.",
+    financial_stress: "Choose a value from 1 to 10.",
+    age: "Allowed range: 18 to 24.",
+    sleep_duration: "Allowed range: 3 to 12 hours per day.",
+    social_media_hours: "Allowed range: 0 to 10 hours per day.",
+    physical_activity: "Allowed range: 0 to 149 minutes per week.",
+    work_study_hours: "Allowed range: 0 to 12 hours per day.",
+    cgpa: "Allowed range: 0 to 10.",
   };
 
   const fieldNeedsNumber = (name) => {
     return Object.keys(numericFieldRules).includes(name);
   };
 
+  const clampValue = (name, value) => {
+    if (value === "") return "";
+
+    const rules = numericFieldRules[name];
+    if (!rules) return value;
+
+    let numericValue = Number(value);
+
+    if (Number.isNaN(numericValue)) return "";
+
+    if (rules.min !== undefined && numericValue < rules.min) {
+      numericValue = rules.min;
+    }
+
+    if (rules.max !== undefined && numericValue > rules.max) {
+      numericValue = rules.max;
+    }
+
+    return numericValue;
+  };
+
   const handleChange = (name, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: fieldNeedsNumber(name) && value !== "" ? Number(value) : value,
-    }));
+    if (fieldNeedsNumber(name)) {
+      const finalValue = clampValue(name, value);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: finalValue,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = (e) => {
@@ -152,7 +140,18 @@ function PredictionForm({ onPredict, isLoading }) {
 
   const getFieldsBySection = (fieldNames) => {
     return fieldNames
-      .map((name) => unifiedFields.find((field) => field.name === name))
+      .map((name) => {
+        if (name === "gender") {
+          return {
+            name: "gender",
+            label: "Gender",
+            type: "select",
+            options: ["Female", "Male"],
+          };
+        }
+
+        return unifiedFields.find((field) => field.name === name);
+      })
       .filter(Boolean);
   };
 
@@ -163,14 +162,9 @@ function PredictionForm({ onPredict, isLoading }) {
   const formatLabel = (label) =>
     label.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 
-  const renderLikertField = (field) => {
-    const options = likertLabelsMap[field.name] || [
-      { value: 1, label: "Very Low" },
-      { value: 2, label: "Low" },
-      { value: 3, label: "Moderate" },
-      { value: 4, label: "High" },
-      { value: 5, label: "Very High" },
-    ];
+  const renderSliderField = (field) => {
+    const rules = numericFieldRules[field.name] || {};
+    const currentValue = formData[field.name];
 
     return (
       <div className="form-group" key={field.name}>
@@ -179,30 +173,27 @@ function PredictionForm({ onPredict, isLoading }) {
           <span className="required-star"> *</span>
         </label>
 
-        <p className="field-helper">{helperText[field.name]}</p>
+        {helperText[field.name] && (
+          <p className="field-helper">{helperText[field.name]}</p>
+        )}
 
-        <div
-          className="likert-scale"
-          role="radiogroup"
-          aria-label={formatLabel(field.label || field.name)}
-        >
-          {options.map((option) => {
-            const isSelected = Number(formData[field.name]) === option.value;
-
-            return (
-              <button
-                key={option.value}
-                type="button"
-                className={`likert-option ${isSelected ? "selected" : ""}`}
-                onClick={() => handleChange(field.name, option.value)}
-                aria-pressed={isSelected}
-              >
-                <span className="likert-circle" />
-                <span className="likert-text">{option.label}</span>
-              </button>
-            );
-          })}
+        <div className="slider-header">
+          <span className="slider-min">{rules.min}</span>
+          <span className="slider-value">{currentValue}</span>
+          <span className="slider-max">{rules.max}</span>
         </div>
+
+        <input
+          id={field.name}
+          type="range"
+          min={rules.min}
+          max={rules.max}
+          step={rules.step || 1}
+          value={currentValue}
+          onChange={(e) => handleChange(field.name, e.target.value)}
+          required
+          className="range-slider"
+        />
       </div>
     );
   };
@@ -228,9 +219,7 @@ function PredictionForm({ onPredict, isLoading }) {
             onChange={(e) => handleChange(field.name, e.target.value)}
             required
           >
-            <option value="">
-              Select {formatLabel(field.label || field.name)}
-            </option>
+            <option value="">Select Gender</option>
             {field.options.map((option) => (
               <option key={option} value={option}>
                 {option}
@@ -243,7 +232,7 @@ function PredictionForm({ onPredict, isLoading }) {
             type="number"
             min={rules.min}
             max={rules.max}
-            step={rules.step || "1"}
+            step={rules.step || 1}
             placeholder={`Enter ${formatLabel(field.label || field.name)}`}
             value={formData[field.name] || ""}
             onChange={(e) => handleChange(field.name, e.target.value)}
@@ -256,8 +245,8 @@ function PredictionForm({ onPredict, isLoading }) {
 
   const renderFields = (fields) =>
     fields.map((field) =>
-      likertFields.includes(field.name)
-        ? renderLikertField(field)
+      sliderFields.includes(field.name)
+        ? renderSliderField(field)
         : renderRegularField(field)
     );
 
