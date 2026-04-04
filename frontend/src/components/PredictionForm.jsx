@@ -56,20 +56,20 @@ function PredictionForm({ onPredict, isLoading }) {
 
   const [formData, setFormData] = useState(initialState);
 
-  const helperText = {
-    academic_pressure: "Choose a value from 1 to 5.",
-    study_satisfaction: "Choose a value from 0 to 5.",
-    motivation: "Choose a value from 1 to 10.",
-    concentration: "Choose a value from 1 to 10.",
-    self_discipline: "Choose a value from 1 to 10.",
-    financial_stress: "Choose a value from 1 to 10.",
-    age: "Allowed range: 18 to 24.",
-    sleep_duration: "Allowed range: 3 to 12 hours per day.",
-    social_media_hours: "Allowed range: 0 to 10 hours per day.",
-    physical_activity: "Allowed range: 0 to 149 minutes per week.",
-    work_study_hours: "Allowed range: 0 to 12 hours per day.",
-    cgpa: "Allowed range: 0 to 10.",
-  };
+   const helperText = {
+  academic_pressure: "Choose a value from 1 to 5.",
+  study_satisfaction: "Choose a value from 0 to 5.",
+  motivation: "Choose a value from 1 to 10.",
+  concentration: "Choose a value from 1 to 10.",
+  self_discipline: "Choose a value from 1 to 10.",
+  financial_stress: "Choose a value from 1 to 10.",
+  age: "Allowed range: 18 to 24 years.",
+  sleep_duration: "Average hours of sleep per day: 3 to 12.",
+  social_media_hours: "Average hours spent on social media per day: 0 to 10.",
+  physical_activity: "Average minutes of physical activity per week: 0 to 149.",
+  work_study_hours: "Average work/study hours per day: 0 to 12.",
+  cgpa: "Allowed range: 0 to 10.",
+};
 
   const fieldNeedsNumber = (name) => {
     return Object.keys(numericFieldRules).includes(name);
@@ -234,7 +234,7 @@ function PredictionForm({ onPredict, isLoading }) {
             max={rules.max}
             step={rules.step || 1}
             placeholder={`Enter ${formatLabel(field.label || field.name)}`}
-            value={formData[field.name] || ""}
+            value={formData[field.name] ?? ""}
             onChange={(e) => handleChange(field.name, e.target.value)}
             required
           />
